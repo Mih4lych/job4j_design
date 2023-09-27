@@ -43,4 +43,12 @@ class NameLoadTest {
                 .hasMessageContaining("does not contain a value")
                 .hasMessageContaining(wrongName);
     }
+
+    @Test
+    void checkEmptyParameters() {
+        NameLoad nameLoad = new NameLoad();
+        assertThatThrownBy(nameLoad::parse)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Names array is empty");
+    }
 }
