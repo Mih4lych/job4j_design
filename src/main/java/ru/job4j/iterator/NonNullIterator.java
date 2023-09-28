@@ -14,10 +14,8 @@ public class NonNullIterator implements Iterator<Integer> {
 
     @Override
     public boolean hasNext() {
-        if (index < data.length && data[index] == null) {
-            do {
-                index++;
-            } while (index < data.length && data[index] == null);
+        while (index < data.length && data[index] == null) {
+            index++;
         }
         return index < data.length;
     }
