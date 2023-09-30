@@ -31,10 +31,8 @@ public class SimpleLinkedList<E> implements SimpleLinked<E> {
     public E get(int index) {
         Objects.checkIndex(index, size);
         Node<E> curNode = head;
-        int curIndex = 0;
-        while (curIndex != index) {
+        for (int i = 0; i < index; i++) {
             curNode = curNode.next;
-            curIndex++;
         }
         return curNode.item;
     }
@@ -47,7 +45,9 @@ public class SimpleLinkedList<E> implements SimpleLinked<E> {
 
             @Override
             public boolean hasNext() {
-                checkModification();
+                if (modCount != expectedModCount) {
+                    throw new ConcurrentModificationException();
+                }
                 return curNode != null;
             }
 
@@ -56,16 +56,9 @@ public class SimpleLinkedList<E> implements SimpleLinked<E> {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                checkModification();
                 E result = curNode.item;
                 curNode = curNode.next;
                 return result;
-            }
-
-            private void checkModification() {
-                if (modCount != expectedModCount) {
-                    throw new ConcurrentModificationException();
-                }
             }
         };
     }
