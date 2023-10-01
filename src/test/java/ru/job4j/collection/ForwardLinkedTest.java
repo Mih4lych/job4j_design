@@ -142,4 +142,42 @@ class ForwardLinkedTest {
         assertThat(second.next()).isEqualTo(2);
         assertThat(second.hasNext()).isFalse();
     }
+
+    @Test
+    void whenAddFirstInEmptyList() {
+        ForwardLinked<Integer> list = new ForwardLinked<>();
+        list.addFirst(2);
+        assertThat(list.get(0)).isEqualTo(2);
+        assertThat(list.getSize()).isEqualTo(1);
+    }
+
+    @Test
+    void whenHasIteratorAndAddFirstThenError() {
+        Iterator<Integer> iterator = list.iterator();
+        list.addFirst(2);
+        assertThatThrownBy(iterator::next)
+                .isInstanceOf(ConcurrentModificationException.class);
+    }
+
+    @Test
+    void whenDeleteFirstInEmptyListThenError() {
+        ForwardLinked<Integer> list = new ForwardLinked<>();
+        assertThatThrownBy(list::deleteFirst)
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    void whenHasIteratorAndDeleteFirstThenError() {
+        Iterator<Integer> iterator = list.iterator();
+        list.deleteFirst();
+        assertThatThrownBy(iterator::next)
+                .isInstanceOf(ConcurrentModificationException.class);
+    }
+
+    @Test
+    void whenDeleteFirstFromList() {
+        assertThat(list.deleteFirst()).isEqualTo(1);
+        assertThat(list.get(0)).isEqualTo(2);
+        assertThat(list.getSize()).isEqualTo(1);
+    }
 }
