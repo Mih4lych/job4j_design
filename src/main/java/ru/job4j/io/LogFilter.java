@@ -28,6 +28,17 @@ public class LogFilter {
         return Collections.emptyList();
     }
 
+    public void saveTo(String out) {
+        try (PrintWriter outStream = new PrintWriter(
+                new BufferedWriter(
+                        new FileWriter(out)
+                ))) {
+            filter().forEach(outStream::println);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         LogFilter logFilter = new LogFilter("data/log.txt");
         logFilter.filter().forEach(System.out::println);
