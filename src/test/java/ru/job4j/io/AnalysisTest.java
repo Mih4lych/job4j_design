@@ -1,60 +1,113 @@
 package ru.job4j.io;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.*;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
 
 class AnalysisTest {
-    @Test
-    public void checkFirstExample() {
-        Analysis analysis = new Analysis();
-        analysis.unavailable("data/first_example.log", "data/first_example.csv");
+    private Analysis analysis;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/first_example.csv"))) {
-            List<String> result = reader.lines().toList();
-            assertThat(result).hasSameElementsAs(List.of("10:57:01;10:59:01;", "11:01:02;11:02:02;"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @BeforeEach
+    void initialize() {
+        analysis = new Analysis();
     }
-    @Test
-    public void checkSecondExample() {
-        Analysis analysis = new Analysis();
-        analysis.unavailable("data/second_example.log", "data/second_example.csv");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/second_example.csv"))) {
-            List<String> result = reader.lines().toList();
-            assertThat(result).hasSameElementsAs(List.of("10:57:01;11:02:02;"));
+    @Test
+    void checkFirstExample(@TempDir Path tempDir) {
+        File source = tempDir.resolve("source.txt").toFile();
+        try (PrintWriter out = new PrintWriter(source)) {
+            out.println("200 10:56:01");
+            out.println("500 10:57:01");
+            out.println("400 10:58:01");
+            out.println("300 10:59:01");
+            out.println("500 11:01:02");
+            out.println("200 11:02:02");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        File target = tempDir.resolve("target.txt").toFile();
+        analysis.unavailable(source.getAbsolutePath(), target.getAbsolutePath());
+
+        StringBuilder rsl = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(target))) {
+            in.lines().forEach(rsl::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertThat("10:57:01;10:59:01;11:01:02;11:02:02;").hasToString(rsl.toString());
     }
-    @Test
-    public void checkNotStoppingExample() {
-        Analysis analysis = new Analysis();
-        analysis.unavailable("data/not_stopping_example.log", "data/not_stopping_example.csv");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/not_stopping_example.csv"))) {
-            List<String> result = reader.lines().toList();
-            assertThat(result).isEmpty();
+    @Test
+    void checkSecondExample(@TempDir Path tempDir) {
+        File source = tempDir.resolve("source.txt").toFile();
+        try (PrintWriter out = new PrintWriter(source)) {
+            out.println("200 10:56:01");
+            out.println("500 10:57:01");
+            out.println("400 10:58:01");
+            out.println("500 10:59:01");
+            out.println("400 11:01:02");
+            out.println("300 11:02:02");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        File target = tempDir.resolve("target.txt").toFile();
+        analysis.unavailable(source.getAbsolutePath(), target.getAbsolutePath());
+
+        StringBuilder rsl = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(target))) {
+            in.lines().forEach(rsl::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertThat("10:57:01;11:02:02;").hasToString(rsl.toString());
     }
-    @Test
-    public void checkNotRunningExample() {
-        Analysis analysis = new Analysis();
-        analysis.unavailable("data/not_running_example.log", "data/not_running_example.csv");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/not_running_example.csv"))) {
-            List<String> result = reader.lines().toList();
-            assertThat(result).hasSameElementsAs(List.of("10:57:01;"));
+    @Test
+    void checkNotStoppingExample(@TempDir Path tempDir) {
+        File source = tempDir.resolve("source.txt").toFile();
+        try (PrintWriter out = new PrintWriter(source)) {
+            out.println("200 10:56:01");
+            out.println("300 10:59:01");
+            out.println("200 11:02:02");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        File target = tempDir.resolve("target.txt").toFile();
+        analysis.unavailable(source.getAbsolutePath(), target.getAbsolutePath());
+
+        StringBuilder rsl = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(target))) {
+            in.lines().forEach(rsl::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertThat("").hasToString(rsl.toString());
+    }
+
+    @Test
+    void checkNotRunningExample(@TempDir Path tempDir) {
+        File source = tempDir.resolve("source.txt").toFile();
+        try (PrintWriter out = new PrintWriter(source)) {
+            out.println("500 10:57:01");
+            out.println("400 10:58:01");
+            out.println("500 11:01:02");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File target = tempDir.resolve("target.txt").toFile();
+        analysis.unavailable(source.getAbsolutePath(), target.getAbsolutePath());
+
+        StringBuilder rsl = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(target))) {
+            in.lines().forEach(rsl::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertThat("10:57:01;").hasToString(rsl.toString());
     }
 }
