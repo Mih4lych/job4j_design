@@ -17,7 +17,7 @@ public class Analysis {
                 } else {
                     if (!("400".equals(pair[0]) || "500".equals(pair[0]))) {
                         intermediateResult.append(pair[1]).append(";");
-                        writer.write(intermediateResult.toString());
+                        writer.write(intermediateResult + System.lineSeparator());
                         intermediateResult.setLength(0);
                     }
                 }
