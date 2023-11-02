@@ -12,7 +12,7 @@ public class Analysis {
 
             while ((data = reader.readLine()) != null) {
                 pair = data.split(" ");
-                if (intermediateResult.length() == 0) {
+                if (intermediateResult.isEmpty()) {
                     intermediateResult.append("400".equals(pair[0]) || "500".equals(pair[0]) ? pair[1] + ";" : "");
                 } else {
                     if (!("400".equals(pair[0]) || "500".equals(pair[0]))) {
